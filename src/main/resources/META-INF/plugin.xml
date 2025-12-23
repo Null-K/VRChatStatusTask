@@ -1,0 +1,31 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
+    <id>com.puddingkc.VRChatStatusTask.VRChatStatusTask</id>
+
+    <!-- Public plugin name should be written in Title Case.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-name -->
+    <name>VRChatStatusTask</name>
+
+    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+    <vendor url="https://www.puddingkc.com">PuddingKC</vendor>
+
+    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
+    <description><![CDATA[
+    Sync your real-time IDE programming status to the VRChat Chatbox via the OSC protocol.<br/>
+    使用 OSC 将你的编程状态同步到 VRChat 聊天栏中。
+]]></description>
+
+    <!-- Product and plugin compatibility requirements.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <depends>com.intellij.modules.platform</depends>
+
+    <!-- Extension points defined by the plugin.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <extensions defaultExtensionNs="com.intellij">
+        <postStartupActivity implementation="com.puddingkc.vrchatstatustask.vrchatstatustask.VRChatStatusTask"/>
+        <applicationConfigurable instance="com.puddingkc.vrchatstatustask.vrchatstatustask.gui.VRChatStatusConfigurable"
+                                 displayName="VRChatStatusTask"/>
+    </extensions>
+</idea-plugin>
