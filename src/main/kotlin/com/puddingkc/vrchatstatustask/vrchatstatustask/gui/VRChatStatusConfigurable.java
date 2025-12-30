@@ -71,7 +71,7 @@ public class VRChatStatusConfigurable implements Configurable {
         panel.add(scrollPane, gbc);
 
         gbc.insets = JBUI.insets(0, 5, 5, 5);
-        JLabel helpLabel = new JLabel("可用变量: {project}, {file}, {errors}, {warnings}, {uptime}");
+        JLabel helpLabel = new JLabel("<html>可用变量: {project}, {file}, {errors}, {warnings}, {uptime}, {line}, {lineNum}");
         helpLabel.setFont(JBUI.Fonts.smallFont());
         helpLabel.setEnabled(false);
         gbc.gridx = 1; gbc.gridy = 6;

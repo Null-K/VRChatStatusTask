@@ -23,6 +23,7 @@ public final class VRChatStatusSettings implements PersistentStateComponent<VRCh
                                     
                                     💻 工程 : {project}
                                     📝 编辑 : {file}
+                                    🧐 当前 : {lineNum} {line}
                                     
                                     {errors} Error | {warnings} Warn
                                     [ UPTime {uptime} ]

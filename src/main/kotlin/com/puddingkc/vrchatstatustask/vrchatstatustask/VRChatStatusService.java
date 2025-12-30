@@ -8,7 +8,9 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
@@ -87,12 +89,38 @@ public final class VRChatStatusService implements Disposable {
             int errors = countHighlights(HighlightSeverity.ERROR);
             int warnings = countHighlights(HighlightSeverity.WARNING);
 
-            String msg = getString(currentFileName, errors, warnings);
+            String currentLine = getCurrentLineContent();
+            int lineNumber = getCurrentLineNumber();
+
+            String msg = getString(currentFileName, errors, warnings, currentLine, lineNumber);
             sendOsc(msg);
         });
     }
 
-    private @NotNull String getString(String currentFileName, int errors, int warnings) {
+    private String getCurrentLineContent() {
+        Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
+        if (editor == null) return "";
+
+        Document document = editor.getDocument();
+        Caret caret = editor.getCaretModel().getPrimaryCaret();
+        int lineNumber = caret.getLogicalPosition().line;
+
+        if (lineNumber >= document.getLineCount()) return "";
+
+        int lineStart = document.getLineStartOffset(lineNumber);
+        int lineEnd = document.getLineEndOffset(lineNumber);
+        return document.getText().substring(lineStart, lineEnd).trim();
+    }
+
+    private int getCurrentLineNumber() {
+        Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
+        if (editor == null) return 0;
+
+        Caret caret = editor.getCaretModel().getPrimaryCaret();
+        return caret.getLogicalPosition().line + 1;
+    }
+
+    private @NotNull String getString(String currentFileName, int errors, int warnings, String currentLine, int lineNumber) {
         VRChatStatusSettings settings = VRChatStatusSettings.getInstance();
         String projectName = project.getName();
 
@@ -103,6 +131,9 @@ public final class VRChatStatusService implements Disposable {
             if (projectName.length() > 19) {
                 projectName = projectName.substring(0, 19) + "...";
             }
+            if (currentLine.length() > 35) {
+                currentLine = currentLine.substring(0, 35) + "...";
+            }
         }
 
         String template = settings.messageTemplate;
@@ -111,7 +142,9 @@ public final class VRChatStatusService implements Disposable {
                 .replace("{file}", currentFileName)
                 .replace("{errors}", String.valueOf(errors))
                 .replace("{warnings}", String.valueOf(warnings))
-                .replace("{uptime}", getDurationString());
+                .replace("{uptime}", getDurationString())
+                .replace("{line}", currentLine)
+                .replace("{lineNum}", String.valueOf(lineNumber));
     }
 
     private int countHighlights(HighlightSeverity severity) {
@@ -125,7 +158,7 @@ public final class VRChatStatusService implements Disposable {
             if (doc == null) continue;
 
             DaemonCodeAnalyzerEx.processHighlights(doc, project, severity, 0, doc.getTextLength(), info -> {
-                        if (info != null) {
+                        if (info != null && info.getSeverity() == severity) {
                             total[0]++;
                         }
                         return true;
